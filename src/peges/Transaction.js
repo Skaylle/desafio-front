@@ -16,6 +16,7 @@ import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MenuItem from "@mui/material/MenuItem";
 import productService from "../services/productService";
+import {monetaryFormatter, moneyFormatter, moneyUnformatter} from "../components/util.ts";
 
 const columns = [
     {field: 'create_fmt', headerName: 'Data'},
@@ -44,8 +45,14 @@ const Transaction = () => {
     const [totalTax, setTotalTax] = useState(0);
     const [rowTransaction, setRowTransaction] = useState({});
 
-    const resetForm = () => {
-        setRow({});
+    const resetForm = (type) => {
+        if (type === 'all'){
+            setRow({});
+            setRowTransaction({});
+            setArrTable([]);
+            setTotal(0);
+            setTotalTax(0);
+        }
     }
 
     const {form, onChangeInput, clearForm, setFormValues, inputError, updateError} = useForm(
@@ -97,8 +104,8 @@ const Transaction = () => {
 
         const formData = {
             transaction: arrTable,
-            total: total,
-            total_tax: totalTax
+            total: moneyUnformatter(total),
+            total_tax: moneyUnformatter(totalTax),
         };
 
         let save;
@@ -187,7 +194,7 @@ const Transaction = () => {
                 if (response.success) {
                     toast.success(response.message, { autoClose: 3000 });
                     getAllTransaction();
-                    clearForm();
+                    //clearForm();
                     return;
                 }
                 toast.success(response.message, { autoClose: 3000 });
@@ -224,9 +231,9 @@ const Transaction = () => {
         } else {
             setArrTable(prevArrTable => [...prevArrTable, newRow]);
         }
-        clearForm();
-        getTotal(newRow.total);
-        getTotalTax(newRow.total_tax);
+        clearForm('form')
+        getTotal(to);
+        getTotalTax(tt);
     }
 
     const getTotal = (value) => {
@@ -334,12 +341,14 @@ const Transaction = () => {
                     <Grid item>
                         <Button
                             variant="outlined"
-                            color="secondary"
+                            color="success"
                             onClick={() => addTableTransaction()}
                             style={{marginTop: '1%'}}
                         >
                             Incluir
                         </Button>
+                        {' '}
+                        <Button variant="outlined" color="secondary" onClick={() => {clearForm('form')}}>Limpar</Button>
                     </Grid>
                 </Grid>
 
@@ -376,11 +385,11 @@ const Transaction = () => {
                     data={arrTable}
                     onRowClick={handleRowClick}
                 />
-                <div>
-                    Total: {total?.toFixed(2)}
+                <div style={{fontSize: '20px'}}>
+                    Total: R$: {moneyFormatter(total)}
                 </div>
-                <div>
-                    Total Imposto: {totalTax}
+                <div style={{fontSize: '20px'}}>
+                    Total Imposto: R$: {moneyFormatter(totalTax)}
                 </div>
             </Grid>
 
@@ -388,7 +397,7 @@ const Transaction = () => {
             <Grid style={{textAlign: 'center'}}>
                 <Button variant="outlined" color="success" onClick={() => handleCreatForm()}>Incluir</Button>
                 {' '}
-                <Button variant="outlined" color="secondary" onClick={clearForm}>Limpar</Button>
+                <Button variant="outlined" color="secondary" onClick={() => {clearForm('all')}}>Limpar</Button>
             </Grid>
 
         </div>

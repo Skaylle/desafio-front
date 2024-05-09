@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const useForm = ({
                      defaultValues = {},
-                     resetForm = () => {},
+                     resetForm = (type: string) => {},
                      requiredFields  = {},
                  }) => {
     const [form, setForm] = useState(defaultValues);
@@ -27,8 +27,8 @@ const useForm = ({
         }
     };
 
-    const clearForm = () =>{
-        resetForm();
+    const clearForm = (type = 'all') =>{
+        resetForm(type);
         setForm(defaultValues);
         setInputError(requiredFields);
     }
