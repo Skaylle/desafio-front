@@ -2,6 +2,8 @@
 
 Para inciar o projeto 
 
+### `npm install`
+
 ### `npm start`
 
 ## Acesso
