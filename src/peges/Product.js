@@ -8,7 +8,7 @@ import { useForm } from "../helpers/useFormHelper.ts";
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import productService from "../services/productService";
-import { monetaryClearFormatter, monetaryFormatter } from "../components/util.ts";
+import {monetaryClearFormatter, monetaryFormatter, moneyFormatter} from "../components/util.ts";
 import { Caption } from "../Style";
 import * as FaIcons from "react-icons/fa";
 import { Link } from 'react-router-dom';
@@ -50,6 +50,9 @@ const Products = () => {
 
     const getAllProduct = async () => {
         const data = await ProductService.getProducts();
+        for (const key in data) {
+            data[key].valor = moneyFormatter(data[key].valor);
+        }
         setProducts(data);
     }
 
