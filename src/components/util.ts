@@ -28,8 +28,8 @@ export const monetaryClearFormatter = (value) => {
 }
 
 export const moneyFormatter = (valor) => {
-    var inteiro = null, decimal = null, c = null, j = null;
-    var aux = [];
+    let inteiro = null, decimal = null, c = null, j = null;
+    let aux = [];
 
     if(valor == null){
         valor = 0;

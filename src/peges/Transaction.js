@@ -15,7 +15,7 @@ import {Link} from 'react-router-dom';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MenuItem from "@mui/material/MenuItem";
-import {monetaryClearFormatter, moneyFormatter, monetaryUnformatter, monetaryFormatter} from "../components/util.ts";
+import {moneyFormatter} from "../components/util.ts";
 
 const columns = [
     {field: 'create_fmt', headerName: 'Data'},
