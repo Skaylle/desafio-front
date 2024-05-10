@@ -15,8 +15,7 @@ import {Link} from 'react-router-dom';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MenuItem from "@mui/material/MenuItem";
-import productService from "../services/productService";
-import {monetaryFormatter, moneyFormatter, moneyUnformatter} from "../components/util.ts";
+import {moneyFormatter} from "../components/util.ts";
 
 const columns = [
     {field: 'create_fmt', headerName: 'Data'},
@@ -28,7 +27,7 @@ const columnsTransaction = [
     {field: 'product_label', headerName: 'Produto'},
     {field: 'valor_unit', headerName: 'valor Unitário'},
     {field: 'quantity', headerName: 'Qtd'},
-    {field: 'tax', headerName: 'Imposto %'},
+    {field: 'tax', headerName: 'Imposto'},
     {field: 'subtotal', headerName: 'Subtotal'},
     {field: 'total_tax', headerName: 'Total Impostos'},
     {field: 'total', headerName: 'Total'},
@@ -104,8 +103,8 @@ const Transaction = () => {
 
         const formData = {
             transaction: arrTable,
-            total: moneyUnformatter(total),
-            total_tax: moneyUnformatter(totalTax),
+            total: total,
+            total_tax: totalTax
         };
 
         let save;
@@ -169,12 +168,12 @@ const Transaction = () => {
                         id: i.id,
                         product_id: i?.product_id,
                         product_label: product?.label,
-                        valor_unit: product?.valor,
+                        valor_unit: moneyFormatter(product?.valor),
                         quantity: i.quantity,
-                        tax: t.toFixed(2),
-                        subtotal: s.toFixed(2),
-                        total_tax: tt.toFixed(2),
-                        total: to,
+                        tax: moneyFormatter(t),
+                        subtotal: moneyFormatter(s),
+                        total_tax: moneyFormatter(tt),
+                        total: moneyFormatter(to),
                     }
 
                     const existingRow = arrTable.find(row => row.id === newRow.id);
@@ -184,8 +183,8 @@ const Transaction = () => {
                         setArrTable(prevArrTable => [...prevArrTable, newRow]);
                     }
                     clearForm();
-                    getTotal(newRow.total);
-                    getTotalTax(newRow.total_tax);
+                    getTotal(to);
+                    getTotalTax(tt);
                 })
                 setRowTransaction({});
                 break;
@@ -199,11 +198,15 @@ const Transaction = () => {
                 }
                 toast.success(response.message, { autoClose: 3000 });
                 break;
-                break;
         }
     }
 
-    const addTableTransaction = () =>{
+    const addTableTransaction = () => {
+        if(form?.product_id === "" && form.quantity === ""){
+            updateError(form);
+            return;
+        }
+
         let product = products?.find((item) => {return item.value === form?.product_id });
         let type = productType?.find((item) => {return item.id === product?.product_type_id});
         let taxes = tax?.find((item) => {return item.id === type?.tax_id});
@@ -217,12 +220,12 @@ const Transaction = () => {
             id: row.id ?? Math.floor(Math.random() * 1000000000000),
             product_id: form?.product_id,
             product_label: product?.label,
-            valor_unit: product?.valor,
+            valor_unit: moneyFormatter(product?.valor),
             quantity: form.quantity,
-            tax: t.toFixed(2),
-            subtotal: s.toFixed(2),
-            total_tax: tt.toFixed(2),
-            total: to,
+            tax: moneyFormatter(t),
+            subtotal: moneyFormatter(s),
+            total_tax: moneyFormatter(tt),
+            total: moneyFormatter(to),
         }
 
         const existingRow = arrTable.find(row => row.id === newRow.id);
@@ -335,7 +338,7 @@ const Transaction = () => {
                             name="quantity"
                             value={form?.quantity}
                             onChange={e => onChangeInput(e.target.value, 'quantity')}
-                            style={{width: '100px'}} // Ajusta o tamanho do campo "Quantidade"
+                            style={{width: '100px'}}
                         />
                     </Grid>
                     <Grid item>

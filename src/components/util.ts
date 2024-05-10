@@ -80,5 +80,5 @@ export const moneyFormatter = (valor) => {
 }
 
 export const moneyUnformatter = (value) => {
-    return new Number(value.split('.').join('').split(',').join('.'));
+    return Number(value.split('.').join('').split(',').join('.'));
 }
