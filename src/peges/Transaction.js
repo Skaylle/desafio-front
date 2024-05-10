@@ -73,20 +73,23 @@ const Transaction = () => {
 
     const getAllTransaction = async () => {
         const data = await TransactionService.getAllTransaction();
+        for (const key in data) {
+            data[key].total = moneyFormatter(data[key].total);
+            data[key].total_tax = moneyFormatter(data[key].total_tax);
+        }
         setTransaction(data);
     }
 
     const getAllProducts = async () => {
         const data = await ProductService.getProducts();
-        data?.forEach((item) => {
-            products.push({
-                value: item.id,
-                label: item.name,
-                product_type_id: item.product_type_id,
-                valor: item.valor,
-            });
-        })
-    }
+        const transformedProducts = data.map(item => ({
+            value: item.id,
+            label: item.name,
+            productTypeId: item.product_type_id,
+            valor: item.valor,
+        }));
+        setProducts(transformedProducts);
+    };
 
     const getAllTax = async () => {
         const data = await TaxService.getAllTax();
@@ -100,6 +103,11 @@ const Transaction = () => {
 
     const handleCreatForm = async () => {
         updateError(form);
+
+        if (arrTable.length === 0) {
+            toast.error('Adicione ao menos um item para a venda', {autoClose: 3000});
+            return;
+        }
 
         const formData = {
             transaction: arrTable,
@@ -156,7 +164,7 @@ const Transaction = () => {
             case 'edit':
                 rowTransaction.items?.map((i) => {
                     let product = products?.find((item) => {return item.value === i?.product_id });
-                    let type = productType?.find((item) => {return item.id === product?.product_type_id});
+                    let type = productType?.find((item) => {return item.id === product?.productTypeId});
                     let taxes = tax?.find((item) => {return item.id === type?.tax_id});
 
                     let t = product?.valor * (taxes.percent / 100);
@@ -202,13 +210,13 @@ const Transaction = () => {
     }
 
     const addTableTransaction = () => {
-        if(form?.product_id === "" && form.quantity === ""){
+        if(form.product_id?.length === 0 || form.quantity?.length === 0) {
             updateError(form);
             return;
         }
 
-        let product = products?.find((item) => {return item.value === form?.product_id });
-        let type = productType?.find((item) => {return item.id === product?.product_type_id});
+        let product = products?.find((item) => {return item.value === form.product_id });
+        let type = productType?.find((item) => {return item.id === product?.productTypeId});
         let taxes = tax?.find((item) => {return item.id === type?.tax_id});
 
         let t = product?.valor * (taxes.percent / 100);

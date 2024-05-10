@@ -1,64 +1,72 @@
-import { useState } from 'react';
+import { SetStateAction, useState } from 'react';
 
-const useForm = ({
-                     defaultValues = {},
-                     resetForm = (type: string) => {},
-                     requiredFields  = {},
-                 }) => {
-    const [form, setForm] = useState(defaultValues);
-    const [inputError, setInputError] = useState(requiredFields);
+interface FormValues {
+    [key: string]: any;
+}
 
-    const onChangeInput = (value, key) => {
-        setForm({
-            ...form,
+interface InputError {
+    [key: string]: {
+        status: boolean;
+        message: string;
+    };
+}
+
+interface FormOptions {
+    defaultValues?: FormValues;
+    resetForm?: (type: string) => void;
+    requiredFields?: FormValues;
+}
+
+const useForm = ({ defaultValues = {}, resetForm = (type: string) => {}, requiredFields = {} }: FormOptions) => {
+    const [form, setForm] = useState<FormValues>(defaultValues);
+    const [inputError, setInputError] = useState<InputError>(requiredFields);
+
+    const onChangeInput = (value: any, key: string) => {
+        setForm(prevForm => ({
+            ...prevForm,
             [key]: value
-        });
+        }));
 
-        if(value){
-            setInputError({
-                ...inputError,
-                [key]: {status: false, message: ''}
-            });
-        }else{
-            setInputError({
-                ...inputError,
-                [key]: {status: true, message: 'Campo Obrigatório'}
-            });
-        }
+        setInputError(prevInputError => ({
+            ...prevInputError,
+            [key]: {
+                status: !value,
+                message: value ? '' : 'Campo Obrigatório'
+            }
+        }));
     };
 
-    const clearForm = (type = 'all') =>{
+    const clearForm = (type: string = 'all') => {
         resetForm(type);
         setForm(defaultValues);
         setInputError(requiredFields);
-    }
+    };
 
     const getJsonForm = () => {
         return JSON.stringify(form, null, 2);
     };
 
-    const setFormValues = (values) => {
-        setForm({
-            ...form,
+    const setFormValues = (values: SetStateAction<FormValues>) => {
+        setForm(prevForm => ({
+            ...prevForm,
             ...values
-        });
+        }));
     };
 
-    const updateError = (values) => {
-        const newInputError = {};
+    const updateError = (values: FormValues) => {
+        const newInputError: InputError = {};
         for (const field in values) {
-            if (values[field] !== '') { // Verifica se o campo tem um valor não vazio
-                newInputError[field] = { status: false, message: '' };
-            } else {
-                newInputError[field] = { status: true, message: 'Campo Obrigatório' };
-            }
+            newInputError[field] = {
+                status: !values[field],
+                message: values[field] ? '' : 'Campo Obrigatório'
+            };
         }
 
-        setInputError({
-            ...inputError,
+        setInputError(prevInputError => ({
+            ...prevInputError,
             ...newInputError
-        });
-    }
+        }));
+    };
 
     return {
         onChangeInput,
@@ -68,7 +76,7 @@ const useForm = ({
         setFormValues,
         inputError,
         updateError
-    }
-}
+    };
+};
 
 export { useForm };
