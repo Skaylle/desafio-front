@@ -79,6 +79,7 @@ export const moneyFormatter = (valor) => {
 
 }
 
-export const moneyUnformatter = (value) => {
-    return Number(value.split('.').join('').split(',').join('.'));
+export const monetaryUnformatter = (value) => {
+    return new Number(value.split('.').join('').split(',').join('.'));
 }
+

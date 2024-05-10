@@ -15,7 +15,7 @@ import {Link} from 'react-router-dom';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MenuItem from "@mui/material/MenuItem";
-import {moneyFormatter} from "../components/util.ts";
+import {monetaryClearFormatter, moneyFormatter, monetaryUnformatter, monetaryFormatter} from "../components/util.ts";
 
 const columns = [
     {field: 'create_fmt', headerName: 'Data'},
@@ -147,8 +147,9 @@ const Transaction = () => {
                 let d = arrTable.find((item) => {
                     return item.id == row.id;
                 })
-                setTotal((total - d.total));
-                setTotal((totalTax - d.total_tax));
+
+                setTotal(total - d.total);
+                setTotal(totalTax - d.total_tax);
 
                 setArrTable(
                     arrTable.filter((item) => {
@@ -162,6 +163,7 @@ const Transaction = () => {
     const actionsTableTransaction = async (action) => {
         switch (action) {
             case 'edit':
+                console.log(rowTransaction);
                 rowTransaction.items?.map((i) => {
                     let product = products?.find((item) => {return item.value === i?.product_id });
                     let type = productType?.find((item) => {return item.id === product?.productTypeId});
@@ -184,13 +186,15 @@ const Transaction = () => {
                         total: moneyFormatter(to),
                     }
 
+                    console.log(newRow);
+
                     const existingRow = arrTable.find(row => row.id === newRow.id);
                     if (existingRow) {
                         setArrTable(prevArrTable => prevArrTable.map(row => (row.id === newRow.id ? newRow : row)));
                     } else {
                         setArrTable(prevArrTable => [...prevArrTable, newRow]);
                     }
-                    clearForm();
+                    //clearForm();
                     getTotal(to);
                     getTotalTax(tt);
                 })
@@ -201,7 +205,7 @@ const Transaction = () => {
                 if (response.success) {
                     toast.success(response.message, { autoClose: 3000 });
                     getAllTransaction();
-                    //clearForm();
+                    clearForm();
                     return;
                 }
                 toast.success(response.message, { autoClose: 3000 });
@@ -345,7 +349,7 @@ const Transaction = () => {
                             variant="standard"
                             name="quantity"
                             value={form?.quantity}
-                            onChange={e => onChangeInput(e.target.value, 'quantity')}
+                            onChange={e => onChangeInput(e.target.value?.replace(/\D/g, ''), 'quantity')}
                             style={{width: '100px'}}
                         />
                     </Grid>
